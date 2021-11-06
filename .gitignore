@@ -1,0 +1,7 @@
+.generated_files/
+debug/
+build/
+dist/
+private
+Makefile-*
+Package-*
