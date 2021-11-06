@@ -8,15 +8,15 @@
 #include <xc.h>
 
 void SYSTEM_Initialize(void);
-
+void initTimer();
 
 int state = 0b0000100000;
-char dir = 0; // 0=left 1=right
+volatile char dir = 0; // 0=left 1=right
 
 void setup() {
     SYSTEM_Initialize(); // set 24 MHz clock for CPU and Peripheral Bus
     // clock period = 41,667 ns = 0,0417 us
-    TRISASET = 0b0000001111100000; // RA5 - RA9
+    TRISACLR = 0b0000001111100000; // RA5 - RA9
 
     initTimer();
 
@@ -46,9 +46,9 @@ void loop() {
             IFS0bits.T3IF = 0;
             LATACLR = state; // clear old bit
             if (dir) {
-                state >> 1; // shift bit by 1
+                state >>= 1; // shift bit by 1
             } else {
-                state << 1;
+                state <<= 1;
             }
             if (state & 0b0000100000) {
                 dir = 0; // shift left
