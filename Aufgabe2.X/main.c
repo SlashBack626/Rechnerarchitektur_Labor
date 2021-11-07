@@ -11,7 +11,7 @@ void setup() {
 void loop() {
     while (1) {
         if (released && PORTBbits.RB9 == 0) { // Bit is 0 when button pressed
-            state = ++state % 2;
+            state = !state;
             released = 0;
         } else if (PORTBbits.RB9 == 1) {
             released = 1;
