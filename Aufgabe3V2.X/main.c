@@ -14,7 +14,7 @@ void setup() {
     // clock period = 41,667 ns = 0,0417 us
     TRISBbits.TRISB9 = 1; // set button as input
     TRISBbits.TRISB0 = 0;
-    LATBbits.LATB0 = 1;
+    // LATBbits.LATB0 = 1;
     initTimer();
 
 }
@@ -36,20 +36,29 @@ void initTimer() {
     // T2CONbits.ON = 1;
 }
 char released = 1;
+char state = 0;
 
 void loop() {
     while (1) {
         if (IFS0bits.T3IF == 1) {
             IFS0bits.T3IF = 0;
             LATBINV = 0x1;
+            
         }
         if (released && PORTBbits.RB9 == 0) { // Bit is 0 when button pressed
-            TMR2 = 0; // reset Timer counter
-            T2CONbits.ON = 1;
+            if (state){
+                T2CONbits.ON = 0;
+                LATBbits.LATB0 = 0;
+                state = 0;
+            }else {
+
+                TMR2 = 0; // reset Timer counter
+                T2CONbits.ON = 1;
+                state = 1;
+            }
             released = 0;
         } else if (PORTBbits.RB9 == 1) {
             released = 1;
-            T2CONbits.ON = 0;
         }
     }
 }

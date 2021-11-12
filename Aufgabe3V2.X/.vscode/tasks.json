@@ -1,0 +1,51 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cppbuild",
+			"label": "C/C++: xc32-g++.exe Aktive Datei kompilieren",
+			"command": "C:\\Programme_N\\MLABXC32Compiler\\bin\\xc32-g++.exe",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-g",
+				"${file}",
+				"-o",
+				"build/default/${fileBasenameNoExtension}.o"
+			],
+			"options": {
+				"cwd": "${fileDirname}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"detail": "Compiler: C:\\Programme_N\\MLABXC32Compiler\\bin\\xc32-g++.exe"
+		},
+		{
+			"type": "cppbuild",
+			"label": "build Project",
+			"command": "C:\\Programme_N\\MLABXC32Compiler\\bin\\xc32-g++.exe",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-g",
+				"main.c",
+				"-o",
+				"build/default/main.o"
+			],
+			"options": {
+				"cwd": "${fileDirname}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"detail": "Compiler: C:\\Programme_N\\MLABXC32Compiler\\bin\\xc32-g++.exe"
+		}
+	]
+}
