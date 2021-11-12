@@ -23,7 +23,7 @@ void setup() {
 
 }
 
-int PWM[5] = {0xEA6, 0x3A9, 0x753, 0xAFD, 0x0};
+int PWM[5] = {0xFFF, 0xBFF, 0x7FF, 0x3FF, 0x0};
 
 void initPWM() {
     CCP1CON1bits.TRIGEN = 0; // Set Sync/Triggered mode (Synchronous Mode)
@@ -33,8 +33,15 @@ void initPWM() {
     CCP1CON1bits.TMRSYNC = 0; // Set timebase synchronization (Synchronized)
     CCP1CON1bits.CLKSEL = 0; // Set the clock source (SystemClock Tcy)
     CCP1CON1bits.TMRPS = 0b11; // Set the clock prescaler (1:64)
-    CCP1PRbits.PRL = PWM[2]; // 16-bit MCCP1 low period bits
-    CCP1PRbits.PRH = PWM[2]; // 16-bit MCCP1 high period bits
+    CCP1CON2bits.OCAEN = 1; // enable OCM1A pin
+    CCP1CON1bits.MOD = 0b0101;
+    // CCP1PRbits.PRL = PWM[2]; // 16-bit MCCP1 low period bits
+    // CCP1PRbits.PRH = PWM[2]; // 16-bit MCCP1 high period bits
+    // CCP1RA = PWM[2];
+    // CCP1RB = PWM[2];
+    CCP1PRbits.PRL = 0xFFF;
+    CCP1RA = 0;
+    CCP1RB = 0x7FF;
     CCP1CON1bits.ON = 1; // Start the Timer
 }
 
@@ -47,7 +54,7 @@ void initTimer() {
     PR3 = 0x1; // Timer3 hold most significant bits
     TMR2 = 0; // reset Timer2 counter
     TMR3 = 0; // reset Timer3 counter
-    T2CONbits.TCKPS = 0b110; // set prescaler to 1/64
+    T2CONbits.TCKPS = 0b111; // set prescaler to 1/64
     T2CONbits.TCS = 0; // clock source: user internal peripheral clock (1: user External Clock)
 
     // note: timer3 will hold interrupt enable, flag and priority
@@ -60,19 +67,20 @@ void loop() {
     while (1) {
         if (IFS0bits.T3IF == 1) {
             IFS0bits.T3IF = 0;
+            CCP1RB = PWM[state]; // 16-bit MCCP1 low period bits
             if (dir) {
                 state++; // shift bit by 1
             } else {
                 state--;
             }
-            if (state == 4){
+            if (state == 5){
                 dir = 0;
+                state = 3;
             }
-            if(state == 0){
+            if(state == -1){
+                state = 2;
                 dir = 1;
             }
-            CCP1PRbits.PRL = PWM[state]; // 16-bit MCCP1 low period bits
-            CCP1PRbits.PRH = PWM[4-state];
         }
 
     }
