@@ -16,6 +16,7 @@ void setup()
     TRISBbits.TRISB2 = 0;
     LATBbits.LATB1 = 0;
     LATBbits.LATB2 = 1;
+    initADC();
 }
 
 void initTimer()
@@ -37,32 +38,52 @@ void initTimer()
     T2CONbits.ON = 1;
 }
 
+void initADC()
+{
+    ANSELCbits.ANSC5 = 1;
+    TRISCbits.TRISC5 = 1;
+    AD1CHSbits.CH0SA = 15;
+    AD1CON3bits.ADRC = 0;
+    AD1CON3bits.ADCS = 20;
+    AD1CON1bits.FORM = 0;
+    AD1CON1bits.MODE12 = 1;
+    AD1CON1bits.ON = 1;
+}
+
+unsigned int readADC()
+{
+    AD1CON1bits.SAMP = 1;
+    delay_us(100);
+    AD1CON1bits.SAMP = 0;
+    while (!AD1CON1bits.DONE)
+        ;
+    return (ADC1BUF0 - 621) / 12.42;
+}
+int temp = 0;
 void loop()
-{ 
-    int counter = 0;  
+{
+    int counter = 0;
     while (1)
     {
         if (IFS0bits.T3IF == 1)
         {
             IFS0bits.T3IF = 0;
-            digit2++;
-            if(digit2 %10 == 0){
-                digit1++;
-                digit2 = 0;
-            }
-            digit1 %= 10;
+            temp = readADC();
         }
-        if(state){
-        sevenSegWrite(digit1);
-
-        }else {
-        sevenSegWrite(digit2);
+        if (state)
+        {
+            sevenSegWrite(temp / 10);
         }
-        counter ++;
-        if (counter == 100){
-        LATBINV = 0b110;
-        state = !state;
-        counter = 0;
+        else
+        {
+            sevenSegWrite(temp % 10);
+        }
+        counter++;
+        if (counter == 100)
+        {
+            LATBINV = 0b110;
+            state = !state;
+            counter = 0;
         }
     }
 }

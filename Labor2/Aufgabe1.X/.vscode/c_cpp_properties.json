@@ -6,6 +6,7 @@
                 "${workspaceFolder}/**"
             ],
             "defines": [
+                "__PIC32MM0256GPM064__",
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
