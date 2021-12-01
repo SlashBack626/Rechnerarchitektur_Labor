@@ -1,6 +1,12 @@
 #include <xc.h>
 #include <sys/attribs.h>
+//#include "sinus.h"
+typedef unsigned char u8;
 
+u8 sinus[100] = {15,16,17,18,19,20,21,21,22,23,24,25,25,26,27,27,28,28,29,
+29,29,30,30,30,30,30,30,30,30,30,29,29,29,28,28,27,27,26,25,25,24,23,22,
+21,21,20,19,18,17,16,15,14,13,12,11,10,10,9,8,7,6,5,5,4,3,3,2,2,1,1,1,0,0,
+0,0,0,0,0,0,0,1,1,1,2,2,3,3,4,5,5,6,7,8,9,9,10,11,12,13,14};
 void initTimer();
 void initDisplay();
 void initDAC();
@@ -73,9 +79,35 @@ unsigned int readADC()
 char steps = 0;
 
 void nextOutput(){
-    DAC1CONbits.DACDAT = steps;
-    steps++;
-    steps %= 32;
+//    DAC1CONbits.DACDAT = sinus[steps];
+//    steps++;
+//    steps %= 100;
+    int DAC1DataMask = 0b000001111111111111111;
+    int DAC1Rest = DAC1DataMask & DAC1CON;
+    
+    asm volatile (
+    
+    // load vars
+    "la $t1, %1 \n\t"      // load *sin[0]
+    "add $t1, $t1, %0 \n\t"
+    // 1. get current sin value
+    "lb $t2, ($t1) \n\t"
+    
+    // DAC1CON + DAC1Rest
+    "sll $t2, $t2, 16 \n\t" // $t2 << 16
+    "or $t4, %2, $t2 \n\t"
+    "sw $t4, DAC1CON \n\t"
+    // 2. increase steps
+    "addi %0, %0, 1 \n\t"
+    // 3. limit steps by modulo 100
+    "li $t3, 100 \n\t"
+    "div %0, $t3 \n\t"
+    "mfhi %0"
+    
+    : "+r"(steps)    //output
+    : "m"(sinus), "r"(DAC1Rest)  // input
+    :"t0", "t1", "t2", "t3", "t4" //clobbered
+    );
 }
 
 void __ISR(_TIMER_3_VECTOR, IPL5SOFT) Timer1Handler(void){

@@ -1,6 +1,5 @@
 #include <xc.h>
 #include <sys/attribs.h>
-#include "sinus.h"
 
 void initTimer();
 void initDisplay();
@@ -74,9 +73,9 @@ unsigned int readADC()
 char steps = 0;
 
 void nextOutput(){
-    DAC1CONbits.DACDAT = sinus[steps];
+    DAC1CONbits.DACDAT = steps;
     steps++;
-    steps %= 100;
+    steps %= 32;
 }
 
 void __ISR(_TIMER_3_VECTOR, IPL5SOFT) Timer1Handler(void){
